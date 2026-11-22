@@ -1,0 +1,11 @@
+﻿# BANリストやローカル運用データ
+*ban*.json
+livetalk-bans.json
+*.local.json
+.env
+.env.*
+
+# エディタ・OSキャッシュ
+.DS_Store
+Thumbs.db
+.vscode/
