@@ -1,6 +1,7 @@
 {
   "name": "@square-extensions/livetalk-ban",
   "version": "0.1.0",
+  "license": "MIT",
   "exports": "./mod.ts",
   "tasks": {
     "check": "deno check mod.ts live-talk/LiveTalkBanManager.ts tests/square_extensions.test.ts",
