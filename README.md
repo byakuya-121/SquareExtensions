@@ -1,6 +1,7 @@
 # SquareExtensions
 
 `@evex/linejs` 向けの LiveTalk 管理・BAN 制御および Square Thread 拡張モジュール群です。
+あ
 
 ## 主な機能・モジュール
 
