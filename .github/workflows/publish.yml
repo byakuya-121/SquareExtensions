@@ -1,0 +1,35 @@
+name: Publish to JSR
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Type check
+        run: deno task check
+
+      - name: Run tests
+        run: deno task test
+
+      - name: Publish to JSR
+        run: deno publish --dry-run
+        # 実際に公開する場合は上の行を `deno publish` に変更してください
+        # （jsr.io で GitHub リポジトリ連携を設定すると OIDC で公開できます）
