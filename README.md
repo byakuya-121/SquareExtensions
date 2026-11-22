@@ -1,24 +1,28 @@
-$proj = "C:\Users\admin\OneDrive\デスクトップ\SquareExtensions\SquareExtensions"; $json = @'
-{
-  "name": "@square-extensions/livetalk-ban",
-  "version": "0.1.0",
-  "license": "MIT",
-  "exports": "./mod.ts",
-  "tasks": {
-    "check": "deno check mod.ts live-talk/LiveTalkBanManager.ts tests/square_extensions.test.ts",
-    "test": "deno test --allow-read --allow-write --allow-env tests/square_extensions.test.ts"
-  }
-}
-'@; [System.IO.File]::WriteAllText("$proj\deno.json", $json, [System.Text.UTF8Encoding]::new($false)); $md = @'
 # SquareExtensions
 
-`@evex/linejs` 向けの LiveTalk 管理・出禁（BAN）制御および Square Thread 拡張モジュール群です。
+`@evex/linejs` 向けの LiveTalk 管理・BAN 制御および Square Thread 拡張モジュール群です。
 
-## 主なモジュール
+## 主な機能・モジュール
 
-- **`LiveTalkManager`**: LiveTalk セッションの取得（`acquire`）、参加（`join`）、イベント取得・購読（`fetchEvents` / `onEvent` / `onAnyEvent`）、参加者キック（`kickOutParticipants`）などのライフサイクル管理。
-- **`LiveTalkBanManager`**: BAN リスト管理、期限付き BAN（`ttlMs` / `expiresAt`）、JSON 永続化・自動保存（`saveToFile` / `loadFromFile` / `autoSaveFilePath`）、およびイベント検知時の自動キック（`attachAutoEnforce`）。
-- **`SquareThreadExtension`**: Square スレッド情報の取得、参加・退出、スレッド単位のイベントフィルタリングと監視。
+- **`LiveTalkManager`**: LiveTalk セッションの取得・参加、イベントの取得と購読、参加者のキックなどライフサイクル全般を管理します。
+- **`LiveTalkBanManager`**:
+  - BAN リストの登録・解除・参照
+  - 有効期限（`ttlMs` / `expiresAt`）付き BAN の管理と期限切れの自動扱い
+  - JSON ファイルへの永続化および永続化キューによる自動保存（`saveToFile` / `loadFromFile` / `autoSaveFilePath`）
+  - イベント検知と連動した自動キック（`attachAutoEnforce`）および即時キック＆BAN（`kickAndBan`）
+- **`SquareThreadExtension`**: Square スレッド情報の取得、参加・退出、スレッド単位のイベントフィルタリングと監視を提供します。
+
+## インストール（JSR / Deno）
+
+JSR から `@square-extensions/livetalk-ban` を利用できます（またはローカルリポジトリから直接インポートします）。
+
+```ts
+import {
+  createSquareExtensionContext,
+  LiveTalkBanManager,
+  LiveTalkManager,
+} from "jsr:@square-extensions/livetalk-ban";
+```
 
 ## 使い方（`LiveTalkBanManager`）
 
@@ -38,6 +42,7 @@ const banManager = new LiveTalkBanManager(liveTalk, {
   onPersistError: (err) => console.error("BANリスト自動保存エラー:", err),
 });
 
+// 既存のBANリストを読み込み（存在しない場合は0件として続行）
 await banManager.loadFromFile("./livetalk-bans.json").catch(() => 0);
 
 // 事前BAN登録（1時間有効の例）
@@ -55,7 +60,7 @@ await banManager.kickAndBan({
   reason: "荒らし行為",
 });
 
-// イベント検知時の自動キック
+// イベント検知時の自動キックを有効化
 const detachAutoEnforce = banManager.attachAutoEnforce({
   squareChatMid: "cSquareChatMid",
   sessionId: "sLiveTalkSessionId",
@@ -64,7 +69,19 @@ const detachAutoEnforce = banManager.attachAutoEnforce({
   },
 });
 
-// クリーンアップ
+// 終了時のクリーンアップ
 detachAutoEnforce();
 await banManager.flushAutoSave();
 await liveTalk.dispose();
+```
+
+## 開発・テスト
+
+```bash
+deno task check
+deno task test
+```
+
+## ライセンス
+
+MIT License（詳細は `LICENSE` を参照）
